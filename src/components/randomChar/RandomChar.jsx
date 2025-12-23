@@ -36,7 +36,6 @@ class RandomChar extends Component {
             .getCharacter(id)
             .then(response => {
                 this.onCharLoaded(response)
-                console.log(response)
             })
             .catch(() => {
                 this.onError()

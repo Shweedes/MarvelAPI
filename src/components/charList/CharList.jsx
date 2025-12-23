@@ -7,6 +7,10 @@ import ErrorMessage from "../errorMessage/ErrorMessage.jsx";
 
 class CharList extends Component {
 
+    constructor(props) {
+        super(props);
+    }
+
     state = {
         chars: [],
         loading: true,
@@ -40,9 +44,10 @@ class CharList extends Component {
 
     render() {
 
+        const {onCharacterSelectedChange} = this.props;
         const {chars, loading, error} = this.state;
 
-        const content = !(loading || error) ? <View chars={chars}/> : null
+        const content = !(loading || error) ? <View chars={chars} onCharacterSelectedChange={onCharacterSelectedChange}/> : null
         const spinner = loading ? <Spinner/> : null
         const errorMessage = error ? <ErrorMessage/> : null
 
@@ -59,11 +64,11 @@ class CharList extends Component {
     }
 }
 
-const View = ({chars}) => {
+const View = ({chars, onCharacterSelectedChange}) => {
     return (
         <ul className="char__grid">
             {chars.map((item) => (
-                    <li key={item.id} className="char__item">
+                    <li key={item.id} className="char__item" onClick={() => onCharacterSelectedChange(item.id)}>
                         <img src={item.thumbnail} alt={item.name} style={{objectFit: 'cover'}}/>
                         <div className="char__name">{item.name}</div>
                     </li>
