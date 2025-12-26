@@ -15,37 +15,55 @@ class CharList extends Component {
         chars: [],
         loading: true,
         error: false,
+        newItemLoading: false,
+        offset: 1,
+        charEnded: false,
     }
 
     marvelService = new MarvelService()
-
-    onCharactersLoaded = (response) => {
-        this.setState({chars: response, loading: false, error: false});
-    }
 
     onError = () => {
         this.setState({loading: false ,error: true})
     }
 
-    updateCharacters =  () => {
-       this.marvelService.getAllCharacters()
-           .then(response => {
-               this.onCharactersLoaded(response)
-               console.log(response)
-           })
-           .catch(() => {
-               this.onError()
-           })
+    onRequest = (offset) => {
+        this.onCharListLoading()
+        this.marvelService.getAllCharacters(offset)
+            .then(response => {
+                this.onCharListLoaded(response)
+            })
+            .catch(() => {
+                this.onError()
+            })
+    }
+
+    onCharListLoading = () => {
+        this.setState({newItemLoading: true})
+    }
+
+    onCharListLoaded = (newCharList) => {
+        let ended = false
+        if(newCharList.length < 9){
+            ended = true
+        }
+
+        this.setState(({chars, offset}) => ({
+            chars: [...chars, ...newCharList],
+            loading: false,
+            newItemLoading: false,
+            offset: offset + 9,
+            charEnded: ended
+        }))
     }
 
     componentDidMount() {
-        this.updateCharacters()
+        this.onRequest()
     }
 
     render() {
 
         const {onCharacterSelectedChange} = this.props;
-        const {chars, loading, error} = this.state;
+        const {chars, loading, error, offset, newItemLoading, charEnded} = this.state;
 
         const content = !(loading || error) ? <View chars={chars} onCharacterSelectedChange={onCharacterSelectedChange}/> : null
         const spinner = loading ? <Spinner/> : null
@@ -56,7 +74,12 @@ class CharList extends Component {
                 {content}
                 {spinner}
                 {errorMessage}
-                <button className="button button__main button__long">
+                <button
+                    className="button button__main button__long"
+                    disabled={newItemLoading}
+                    style={{'display': charEnded ? 'none' : 'block'}}
+                    onClick={() => this.onRequest(offset)}
+                >
                     <div className="inner">load more</div>
                 </button>
             </div>
