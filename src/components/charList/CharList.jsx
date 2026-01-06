@@ -9,6 +9,7 @@ class CharList extends Component {
 
     constructor(props) {
         super(props);
+        this.itemRefs = []
     }
 
     state = {
@@ -60,12 +61,26 @@ class CharList extends Component {
         this.onRequest()
     }
 
+    onClickSelectedChar = (id, index) => {
+
+        this.itemRefs.forEach(item => {
+            if (item && item.classList) {  // Проверяем, существует ли элемент
+                item.classList.remove('char__item_selected');
+            }
+        })
+
+        if (this.itemRefs[index]) {
+            this.itemRefs[index].classList.add('char__item_selected');
+        }
+
+        this.props.onCharacterSelectedChange(id)
+    }
+
     render() {
 
-        const {onCharacterSelectedChange} = this.props;
         const {chars, loading, error, offset, newItemLoading, charEnded} = this.state;
 
-        const content = !(loading || error) ? <View chars={chars} onCharacterSelectedChange={onCharacterSelectedChange}/> : null
+        const content = !(loading || error) ? <View chars={chars} onClickSelectedChar={this.onClickSelectedChar} itemRefs={this.itemRefs}/> : null
         const spinner = loading ? <Spinner/> : null
         const errorMessage = error ? <ErrorMessage/> : null
 
@@ -87,11 +102,18 @@ class CharList extends Component {
     }
 }
 
-const View = ({chars, onCharacterSelectedChange}) => {
+const View = ({chars, onClickSelectedChar, itemRefs}) => {
     return (
         <ul className="char__grid">
-            {chars.map((item) => (
-                    <li key={item.id} className="char__item" onClick={() => onCharacterSelectedChange(item.id)}>
+            {chars.map((item, index) => (
+                    <li key={item.id}
+                        className="char__item"
+                        onClick={() => onClickSelectedChar(item.id, index)}
+                        // ВАЖНО: callback ref - функция, которая получает DOM-элемент
+                        ref={elem => {
+                            // Сохраняем ссылку на DOM-элемент в массив по индексу
+                            itemRefs[index] = elem
+                        }}>
                         <img src={item.thumbnail} alt={item.name} style={{objectFit: 'cover'}}/>
                         <div className="char__name">{item.name}</div>
                     </li>
