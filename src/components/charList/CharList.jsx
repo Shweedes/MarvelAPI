@@ -1,56 +1,41 @@
 import {useState, useEffect, useRef} from "react";
 
 import './charList.scss';
-import MarvelService from "../../services/MarvelService.js";
+import useMarvelService from "../../services/MarvelService.js";
 import Spinner from "../spinner/Spinner.jsx";
 import ErrorMessage from "../errorMessage/ErrorMessage.jsx";
 
 const CharList = (props) => {
 
     const [chars, setChars] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(false)
     const [newItemLoading, setNewItemLoading] = useState(false)
     const [offset, setOffset] = useState(0)
     const [charEnded, setCharEnded] = useState(false)
 
-    const marvelService = new MarvelService()
+    const {loading, error, getAllCharacters} =  useMarvelService()
 
     useEffect(() => {
-        onRequest()
+        onRequest(offset, true)
     }, [])
 
-    const onRequest = (offset) => {
-        onCharListLoading()
-        marvelService.getAllCharacters(offset)
+    const onRequest = (offset, initial) => {
+        initial ? setNewItemLoading(false) : setNewItemLoading(true)
+        getAllCharacters(offset)
             .then(response => {
                 onCharListLoaded(response)
             })
-            .catch(() => {
-                onError()
-            })
-    }
-
-    const onCharListLoading = () => {
-        setNewItemLoading(true)
     }
 
     const onCharListLoaded = (newCharList) => {
         let ended = false
-        if(newCharList.length < 9){
+        if (newCharList.length < 9) {
             ended = true
         }
 
         setChars((chars) => [...chars, ...newCharList])
-        setLoading(false)
         setNewItemLoading(false)
         setOffset((offset) => offset + 9)
         setCharEnded(charEnded => ended)
-    }
-
-    const onError = () => {
-        setLoading(false)
-        setError(true)
     }
 
     const itemRefs = useRef([])
@@ -70,13 +55,12 @@ const CharList = (props) => {
         props.onCharacterSelectedChange(id)
     }
 
-    const content = !(loading || error) ? <View chars={chars} onClickSelectedChar={onClickSelectedChar} itemRefs={itemRefs}/> : null
-    const spinner = loading ? <Spinner/> : null
+    const spinner = loading && !newItemLoading ? <Spinner/> : null
     const errorMessage = error ? <ErrorMessage/> : null
 
     return (
         <div className="char__list">
-            {content}
+            <View chars={chars} onClickSelectedChar={onClickSelectedChar} itemRefs={itemRefs}/>
             {spinner}
             {errorMessage}
             <button

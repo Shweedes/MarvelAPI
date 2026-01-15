@@ -4,16 +4,13 @@ import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
 import Spinner from "../spinner/Spinner.jsx";
-import MarvelService from "../../services/MarvelService.js";
+import useMarvelService from "../../services/MarvelService.js";
 import ErrorMessage from "../errorMessage/ErrorMessage.jsx";
 
 const RandomChar = () => {
 
     const [char,setChar] = useState({})
-    const [loading,setLoading] = useState(true)
-    const [error,setError] = useState(false)
-
-    const marvelService = new MarvelService()
+    const {loading, error, getCharacter, clearError} = useMarvelService()
 
     useEffect(()=>{
         updateChar()
@@ -21,29 +18,14 @@ const RandomChar = () => {
 
     const onCharLoaded = (char) => {
         setChar(char)
-        setLoading(false)
-        setError(false)
-    }
-
-    const onError = () => {
-        setLoading(false)
-        setError(true)
-    }
-
-   const  onCharLoading = () => {
-        setLoading(true)
     }
 
     const updateChar = () => {
+        clearError()
         const id = Math.floor(Math.random() * 21)
-        onCharLoading()
-        marvelService
-            .getCharacter(id)
+        getCharacter(id)
             .then(response => {
                 onCharLoaded(response)
-            })
-            .catch(() => {
-                onError()
             })
     }
 

@@ -1,31 +1,24 @@
-class MarvelService {
-    _apiBase = 'https://marvel-server-zeta.vercel.app/'
+import {useHttp} from "../hooks/http.hook.js";
 
-    _apiKey = 'apikey=d4eecb0c66dedbfae4eab45d312fc1df'
+const useMarvelService = () => {
 
-    _baseOffset = 2;
+    const {loading, request, error, clearError} = useHttp()
 
-    getResource = async (url) => {
-        let res = await fetch(url)
+    const _apiBase = 'https://marvel-server-zeta.vercel.app/'
+    const _apiKey = 'apikey=d4eecb0c66dedbfae4eab45d312fc1df'
+    const _baseOffset = 2;
 
-        if (!res.ok) {
-            throw new Error(`Could not fetch ${url}, status: ${res.status}`)
-        }
-
-        return await res.json();
+    const getAllCharacters = async (offset = _baseOffset) => {
+        const response = await request(`${_apiBase}characters?limit=9&offset=${offset}&${_apiKey}`)
+        return response.data.results.map(character => _transformCharacter(character))
     }
 
-    getAllCharacters = async (offset = this._baseOffset) => {
-        const response = await this.getResource(`${this._apiBase}characters?limit=9&offset=${offset}&${this._apiKey}`)
-        return response.data.results.map(character => this._transformCharacter(character))
+    const getCharacter = async (id) => {
+        const response = await request(`${_apiBase}characters/${id}?${_apiKey}`)
+        return _transformCharacter(response.data.results[0])
     }
 
-    getCharacter = async (id) => {
-        const response = await this.getResource(`${this._apiBase}characters/${id}?${this._apiKey}`)
-        return this._transformCharacter(response.data.results[0])
-    }
-
-    _transformCharacter = (char) => {
+    const _transformCharacter = (char) => {
         return {
             name: char.name,
             description: char.description,
@@ -36,6 +29,8 @@ class MarvelService {
             comics: char.comics.items,
         }
     }
+
+    return {loading, error, getAllCharacters, getCharacter, clearError}
 }
 
-export default MarvelService;
+export default useMarvelService
