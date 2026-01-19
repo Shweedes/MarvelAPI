@@ -7,6 +7,8 @@ import CharInfo from "../charInfo/CharInfo";
 import ErrorBoundary from "../errorBoundary/ErrorBoundary.jsx";
 
 import decoration from '../../resources/img/vision.png';
+import AppBanner from "../appBaner/AppBanner.jsx";
+import ComicsList from "../comicsList/ComicsList.jsx";
 
 const App = () => {
 
@@ -20,18 +22,20 @@ const App = () => {
         <div className="app">
             <AppHeader/>
             <main>
-                <ErrorBoundary>
-                    <RandomChar/>
-                </ErrorBoundary>
-                <div className="char__content">
-                    <ErrorBoundary>
-                        <CharList onCharacterSelectedChange = {onCharacterSelectedChange}/>
-                    </ErrorBoundary>
-                    <ErrorBoundary>
-                        <CharInfo charId={selectedChar}/>
-                    </ErrorBoundary>
-                </div>
-                <img className="bg-decoration" src={decoration} alt="vision"/>
+                {/*<ErrorBoundary>*/}
+                {/*    <RandomChar/>*/}
+                {/*</ErrorBoundary>*/}
+                {/*<div className="char__content">*/}
+                {/*    <ErrorBoundary>*/}
+                {/*        <CharList onCharacterSelectedChange = {onCharacterSelectedChange}/>*/}
+                {/*    </ErrorBoundary>*/}
+                {/*    <ErrorBoundary>*/}
+                {/*        <CharInfo charId={selectedChar}/>*/}
+                {/*    </ErrorBoundary>*/}
+                {/*</div>*/}
+                {/*<img className="bg-decoration" src={decoration} alt="vision"/>*/}
+                <AppBanner/>
+                <ComicsList />
             </main>
         </div>
     )
